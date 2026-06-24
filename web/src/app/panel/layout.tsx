@@ -37,7 +37,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
     <div className="flex bg-neutral-50">
       <aside className="w-60 h-screen sticky top-0 border-r border-neutral-200 bg-white p-4 flex flex-col shrink-0">
         <div className="flex items-center gap-2 px-2 mb-6 shrink-0">
-          <Image src="/logo.png" alt="Grafi" width={32} height={32} className="rounded-lg" />
+          <Image src="/brand-icon.png" alt="Grafi" width={32} height={32} className="rounded-lg" />
           <span className="font-semibold text-sm">Grafi</span>
         </div>
 
