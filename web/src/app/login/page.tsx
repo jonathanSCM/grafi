@@ -53,7 +53,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Image
-            src="/logo.svg"
+            src="/logo.png"
             alt="Grafi"
             width={48}
             height={48}

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Grafi",
   description: "Grafi — Plataforma de tarjetas digitales NFC",
   icons: {
-    icon: "/logo.svg",
+    icon: "/logo.png",
   },
 };
 
