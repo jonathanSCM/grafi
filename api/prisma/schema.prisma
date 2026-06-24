@@ -42,6 +42,12 @@ enum LinkType {
   PROJECTS
   SCHEDULE_MEETING
   SAVE_CONTACT
+  LINKEDIN
+  INSTAGRAM
+  TIKTOK
+  FACEBOOK
+  YOUTUBE
+  PDF
   CUSTOM
 }
 
@@ -92,8 +98,29 @@ model Company {
   updatedAt DateTime @updatedAt
 
   users User[]
+  catalogItems CatalogItem[]
 
   @@map("companies")
+}
+
+model CatalogItem {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?  @db.Text
+  image       String?
+  link        String?  @db.Text
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assignedTo  Profile[] @relation("CatalogItemAssignments")
+
+  @@map("catalog_items")
 }
 
 model Plan {
@@ -166,6 +193,7 @@ model Profile {
   qrCode           QrCode?
   analyticsEvents  AnalyticsEvent[]
   leads            Lead[]
+  assignedCatalogItems CatalogItem[] @relation("CatalogItemAssignments")
 
   @@map("profiles")
 }

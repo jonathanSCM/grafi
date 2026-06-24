@@ -156,14 +156,17 @@ export declare class CompaniesService {
         textColor: string | null;
         collaborators: {
             id: string;
+            profileId: string | null;
             name: string;
             email: string;
             status: import("@prisma/client").$Enums.UserStatus;
             slug: string | null;
             linkCount: number;
             totalEvents: number;
+            leadCount: number;
         }[];
         totalEvents: number;
+        totalLeads: number;
     }>;
     getDetailForAdmin(companyId: string): Promise<{
         id: string;
@@ -182,13 +185,16 @@ export declare class CompaniesService {
         textColor: string | null;
         collaborators: {
             id: string;
+            profileId: string | null;
             name: string;
             email: string;
             status: import("@prisma/client").$Enums.UserStatus;
             slug: string | null;
             linkCount: number;
             totalEvents: number;
+            leadCount: number;
         }[];
         totalEvents: number;
+        totalLeads: number;
     }>;
 }

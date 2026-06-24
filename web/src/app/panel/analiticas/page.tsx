@@ -32,6 +32,13 @@ export default function AnalyticsPage() {
 
   const maxClicks = Math.max(1, ...summary.clicksByLink.map((l) => l.clickCount));
 
+  const topActions = summary.byType
+    .filter((row) => row.eventType !== 'PROFILE_VIEW')
+    .sort((a, b) => b._count._all - a._count._all);
+
+  const totalActions = topActions.reduce((sum, row) => sum + row._count._all, 0);
+  const interactionRate = summary.totalViews > 0 ? Math.round((totalActions / summary.totalViews) * 100) : 0;
+
   return (
     <div className="max-w-xl flex flex-col gap-8">
       <div>
@@ -39,18 +46,27 @@ export default function AnalyticsPage() {
         <p className="text-sm text-neutral-500 mt-1">Cómo interactúan los visitantes con tu perfil.</p>
       </div>
 
-      <div className="bg-white border border-neutral-200 rounded-2xl p-6">
-        <p className="text-xs text-neutral-500">Visitas totales</p>
-        <p className="text-4xl font-semibold mt-1 tracking-tight">{summary.totalViews}</p>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white border border-neutral-200 rounded-2xl p-6">
+          <p className="text-xs text-neutral-500">Visitas totales</p>
+          <p className="text-4xl font-semibold mt-1 tracking-tight">{summary.totalViews}</p>
+        </div>
+        <div className="bg-white border border-neutral-200 rounded-2xl p-6">
+          <p className="text-xs text-neutral-500">Tasa de interacción</p>
+          <p className="text-4xl font-semibold mt-1 tracking-tight">{interactionRate}%</p>
+        </div>
       </div>
 
       <div className="bg-white border border-neutral-200 rounded-2xl p-6">
-        <h2 className="text-sm font-medium mb-4">Eventos por tipo</h2>
+        <h2 className="text-sm font-medium mb-4">Top acciones</h2>
         <div className="flex flex-col gap-2.5">
-          {summary.byType.length === 0 && <p className="text-sm text-neutral-400">Sin datos todavía.</p>}
-          {summary.byType.map((row) => (
-            <div key={row.eventType} className="flex justify-between text-sm">
-              <span className="text-neutral-600">{EVENT_LABELS[row.eventType] ?? row.eventType}</span>
+          {topActions.length === 0 && <p className="text-sm text-neutral-400">Sin datos todavía.</p>}
+          {topActions.map((row, i) => (
+            <div key={row.eventType} className="flex items-center justify-between text-sm">
+              <span className="text-neutral-600 flex items-center gap-2">
+                <span className="text-xs text-neutral-400 w-4">{i + 1}.</span>
+                {EVENT_LABELS[row.eventType] ?? row.eventType}
+              </span>
               <span className="font-medium">{row._count._all}</span>
             </div>
           ))}

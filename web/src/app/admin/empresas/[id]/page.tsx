@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import CompanyEditForm from '@/components/CompanyEditForm';
+import Avatar from '@/components/Avatar';
 
 interface Collaborator {
   id: string;
@@ -94,7 +95,12 @@ export default function AdminCompanyDetailPage() {
           <tbody>
             {data.collaborators.map((c) => (
               <tr key={c.id} className="border-b border-neutral-100 last:border-0">
-                <td className="py-3 px-4 font-medium">{c.name}</td>
+                <td className="py-3 px-4 font-medium">
+                  <div className="flex items-center gap-2.5">
+                    <Avatar name={c.name} className="w-7 h-7 text-xs" />
+                    {c.name}
+                  </div>
+                </td>
                 <td className="py-3 px-4 text-neutral-600">{c.email}</td>
                 <td className="py-3 px-4 text-neutral-600">
                   {c.slug ? (

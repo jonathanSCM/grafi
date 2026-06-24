@@ -19,9 +19,14 @@ const multer_1 = require("multer");
 const path_1 = require("path");
 const crypto_1 = require("crypto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
-const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+const ALLOWED_DOCUMENT_TYPES = ['application/pdf'];
 let UploadsController = class UploadsController {
-    upload(file, req) {
+    upload(file) {
+        const base = process.env.PUBLIC_API_URL ?? `http://localhost:${process.env.PORT ?? 3001}`;
+        return { url: `${base}/uploads/${file.filename}` };
+    }
+    uploadDocument(file) {
         const base = process.env.PUBLIC_API_URL ?? `http://localhost:${process.env.PORT ?? 3001}`;
         return { url: `${base}/uploads/${file.filename}` };
     }
@@ -39,7 +44,7 @@ __decorate([
         }),
         limits: { fileSize: 5 * 1024 * 1024 },
         fileFilter: (_req, file, callback) => {
-            if (!ALLOWED_TYPES.includes(file.mimetype)) {
+            if (!ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
                 callback(new common_1.BadRequestException('Tipo de archivo no permitido'), false);
                 return;
             }
@@ -47,11 +52,34 @@ __decorate([
         },
     })),
     __param(0, (0, common_1.UploadedFile)()),
-    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UploadsController.prototype, "upload", null);
+__decorate([
+    (0, common_1.Post)('document'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
+        storage: (0, multer_1.diskStorage)({
+            destination: './uploads',
+            filename: (_req, file, callback) => {
+                const unique = (0, crypto_1.randomUUID)();
+                callback(null, `${unique}${(0, path_1.extname)(file.originalname)}`);
+            },
+        }),
+        limits: { fileSize: 15 * 1024 * 1024 },
+        fileFilter: (_req, file, callback) => {
+            if (!ALLOWED_DOCUMENT_TYPES.includes(file.mimetype)) {
+                callback(new common_1.BadRequestException('Tipo de archivo no permitido'), false);
+                return;
+            }
+            callback(null, true);
+        },
+    })),
+    __param(0, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UploadsController.prototype, "uploadDocument", null);
 exports.UploadsController = UploadsController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('uploads')

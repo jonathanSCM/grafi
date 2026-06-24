@@ -1,11 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Download } from 'lucide-react';
 import type { Profile, ProfileLink } from '@/lib/types';
 import { resolveProfileStyle } from '@/lib/profile-style';
 import LinkIcon from '@/components/LinkIcon';
+import SaveContactModal from '@/components/SaveContactModal';
+import LeadForm from '@/components/LeadForm';
+import CatalogSection from '@/components/CatalogSection';
+import PdfViewerModal from '@/components/PdfViewerModal';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api';
 
@@ -17,6 +21,7 @@ const LINK_LABELS: Record<string, string> = {
   PROJECTS: 'Proyectos',
   SCHEDULE_MEETING: 'Agendar reunión',
   SAVE_CONTACT: 'Guardar contacto',
+  PDF: 'PDF',
   CUSTOM: '',
 };
 
@@ -45,9 +50,26 @@ function handleLinkClick(slug: string, link: ProfileLink) {
 }
 
 export default function ProfileView({ profile }: { profile: Profile }) {
+  const [host, setHost] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [pdfViewer, setPdfViewer] = useState<{ url: string; title: string } | null>(null);
+
   useEffect(() => {
     trackEvent(profile.slug, 'PROFILE_VIEW');
+    setHost(window.location.host);
+
+    const key = `grafi_save_contact_dismissed_${profile.slug}`;
+    const dismissed = localStorage.getItem(key) === '1';
+    if (!dismissed) {
+      const timer = setTimeout(() => setModalOpen(true), 700);
+      return () => clearTimeout(timer);
+    }
   }, [profile.slug]);
+
+  function closeModal() {
+    localStorage.setItem(`grafi_save_contact_dismissed_${profile.slug}`, '1');
+    setModalOpen(false);
+  }
 
   const style = resolveProfileStyle(profile);
 
@@ -122,7 +144,14 @@ export default function ProfileView({ profile }: { profile: Profile }) {
           {profile.links.map((link) => (
             <button
               key={link.id}
-              onClick={() => handleLinkClick(profile.slug, link)}
+              onClick={() => {
+                if (link.type === 'PDF') {
+                  trackEvent(profile.slug, 'CUSTOM_LINK_CLICK', link.id);
+                  setPdfViewer({ url: link.url, title: link.title || 'PDF' });
+                  return;
+                }
+                handleLinkClick(profile.slug, link);
+              }}
               className="w-full rounded-2xl border py-3.5 px-4 text-sm font-medium transition active:scale-[0.98] hover:opacity-90 shadow-sm flex items-center justify-center gap-2"
               style={{
                 backgroundColor: style.buttonBackground,
@@ -136,9 +165,8 @@ export default function ProfileView({ profile }: { profile: Profile }) {
           ))}
         </div>
 
-        <a
-          href={`${API_URL}/vcard/${profile.slug}`}
-          onClick={() => trackEvent(profile.slug, 'SAVE_CONTACT_CLICK')}
+        <button
+          onClick={() => setModalOpen(true)}
           className="w-full rounded-2xl border py-3.5 px-4 text-sm font-medium transition active:scale-[0.98] hover:opacity-90 shadow-sm flex items-center justify-center gap-2 mt-2"
           style={{
             backgroundColor: style.buttonBackground,
@@ -148,12 +176,27 @@ export default function ProfileView({ profile }: { profile: Profile }) {
         >
           <Download className="w-4 h-4 shrink-0" />
           Guardar contacto
-        </a>
+        </button>
+
+        <CatalogSection slug={profile.slug} textColor={style.textColor} />
+
+        <LeadForm slug={profile.slug} textColor={style.textColor} />
 
         <p className="text-[11px] opacity-40 mt-6">
-          {typeof window !== 'undefined' ? window.location.host : ''}/{profile.slug}
+          {host}/{profile.slug}
         </p>
       </div>
+
+      <SaveContactModal
+        open={modalOpen}
+        onClose={closeModal}
+        profile={profile}
+        onSave={() => trackEvent(profile.slug, 'SAVE_CONTACT_CLICK')}
+      />
+
+      {pdfViewer && (
+        <PdfViewerModal url={pdfViewer.url} title={pdfViewer.title} onClose={() => setPdfViewer(null)} />
+      )}
     </main>
   );
 }

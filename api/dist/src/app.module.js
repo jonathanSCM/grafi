@@ -23,6 +23,8 @@ const social_links_module_1 = require("./social-links/social-links.module");
 const uploads_module_1 = require("./uploads/uploads.module");
 const companies_module_1 = require("./companies/companies.module");
 const cards_module_1 = require("./cards/cards.module");
+const leads_module_1 = require("./leads/leads.module");
+const catalog_module_1 = require("./catalog/catalog.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -42,6 +44,8 @@ exports.AppModule = AppModule = __decorate([
             uploads_module_1.UploadsModule,
             companies_module_1.CompaniesModule,
             cards_module_1.CardsModule,
+            leads_module_1.LeadsModule,
+            catalog_module_1.CatalogModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

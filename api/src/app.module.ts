@@ -14,6 +14,8 @@ import { SocialLinksModule } from './social-links/social-links.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { CompaniesModule } from './companies/companies.module';
 import { CardsModule } from './cards/cards.module';
+import { LeadsModule } from './leads/leads.module';
+import { CatalogModule } from './catalog/catalog.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { CardsModule } from './cards/cards.module';
     UploadsModule,
     CompaniesModule,
     CardsModule,
+    LeadsModule,
+    CatalogModule,
   ],
   controllers: [AppController],
   providers: [AppService],

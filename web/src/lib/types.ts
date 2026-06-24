@@ -6,6 +6,12 @@ export type LinkType =
   | 'PROJECTS'
   | 'SCHEDULE_MEETING'
   | 'SAVE_CONTACT'
+  | 'LINKEDIN'
+  | 'INSTAGRAM'
+  | 'TIKTOK'
+  | 'FACEBOOK'
+  | 'YOUTUBE'
+  | 'PDF'
   | 'CUSTOM';
 
 export type BackgroundType = 'THEME' | 'SOLID' | 'GRADIENT';

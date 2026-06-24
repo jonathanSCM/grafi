@@ -166,6 +166,13 @@ export class CompaniesService {
 
     const viewsMap = new Map(analyticsByProfile.map((a) => [a.profileId, a._count._all]));
 
+    const leadsByProfile = await this.prisma.lead.groupBy({
+      by: ['profileId'],
+      where: { profileId: { in: profileIds } },
+      _count: { _all: true },
+    });
+    const leadsMap = new Map(leadsByProfile.map((l) => [l.profileId, l._count._all]));
+
     return {
       id: company.id,
       name: company.name,
@@ -183,14 +190,17 @@ export class CompaniesService {
       textColor: company.textColor,
       collaborators: company.users.map((u) => ({
         id: u.id,
+        profileId: u.profile?.id ?? null,
         name: u.name,
         email: u.email,
         status: u.status,
         slug: u.profile?.slug ?? null,
         linkCount: u.profile?._count.links ?? 0,
         totalEvents: u.profile ? viewsMap.get(u.profile.id) ?? 0 : 0,
+        leadCount: u.profile ? leadsMap.get(u.profile.id) ?? 0 : 0,
       })),
       totalEvents: [...viewsMap.values()].reduce((sum, v) => sum + v, 0),
+      totalLeads: [...leadsMap.values()].reduce((sum, v) => sum + v, 0),
     };
   }
 

@@ -9,19 +9,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateLinkDto = exports.LinkTypeDto = void 0;
+exports.CreateLinkDto = void 0;
 const class_validator_1 = require("class-validator");
-var LinkTypeDto;
-(function (LinkTypeDto) {
-    LinkTypeDto["WHATSAPP"] = "WHATSAPP";
-    LinkTypeDto["CALL"] = "CALL";
-    LinkTypeDto["EMAIL"] = "EMAIL";
-    LinkTypeDto["WEBSITE"] = "WEBSITE";
-    LinkTypeDto["PROJECTS"] = "PROJECTS";
-    LinkTypeDto["SCHEDULE_MEETING"] = "SCHEDULE_MEETING";
-    LinkTypeDto["SAVE_CONTACT"] = "SAVE_CONTACT";
-    LinkTypeDto["CUSTOM"] = "CUSTOM";
-})(LinkTypeDto || (exports.LinkTypeDto = LinkTypeDto = {}));
+const client_1 = require("@prisma/client");
 class CreateLinkDto {
     type;
     title;
@@ -30,7 +20,7 @@ class CreateLinkDto {
 }
 exports.CreateLinkDto = CreateLinkDto;
 __decorate([
-    (0, class_validator_1.IsEnum)(LinkTypeDto),
+    (0, class_validator_1.IsEnum)(client_1.LinkType),
     __metadata("design:type", String)
 ], CreateLinkDto.prototype, "type", void 0);
 __decorate([

@@ -20,6 +20,7 @@ const roles_decorator_1 = require("../auth/roles.decorator");
 const admin_service_1 = require("./admin.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
 const update_user_status_dto_1 = require("./dto/update-user-status.dto");
+const admin_update_card_dto_1 = require("../cards/dto/admin-update-card.dto");
 let AdminController = class AdminController {
     adminService;
     constructor(adminService) {
@@ -36,6 +37,9 @@ let AdminController = class AdminController {
     }
     listCards() {
         return this.adminService.listCards();
+    }
+    updateCard(profileId, dto) {
+        return this.adminService.updateCard(profileId, dto);
     }
     analyticsOverview() {
         return this.adminService.analyticsOverview();
@@ -69,6 +73,14 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "listCards", null);
+__decorate([
+    (0, common_1.Patch)('cards/:profileId'),
+    __param(0, (0, common_1.Param)('profileId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, admin_update_card_dto_1.AdminUpdateCardDto]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "updateCard", null);
 __decorate([
     (0, common_1.Get)('analytics/overview'),
     __metadata("design:type", Function),

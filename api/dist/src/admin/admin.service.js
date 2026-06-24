@@ -51,11 +51,12 @@ let AdminService = class AdminService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    listUsers() {
-        return this.prisma.user.findMany({
+    async listUsers() {
+        const users = await this.prisma.user.findMany({
             include: { profile: true, plan: true, company: true },
             orderBy: { createdAt: 'desc' },
         });
+        return users.map(({ password, ...rest }) => rest);
     }
     async createUser(dto) {
         const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
@@ -82,10 +83,37 @@ let AdminService = class AdminService {
         }
         return this.prisma.user.update({ where: { id: userId }, data: { status: dto.status } });
     }
-    listCards() {
-        return this.prisma.card.findMany({
-            include: { profile: { include: { user: true } } },
+    async listCards() {
+        const profiles = await this.prisma.profile.findMany({
+            include: { card: true, user: true },
             orderBy: { createdAt: 'desc' },
+        });
+        return profiles.map(({ user, ...rest }) => {
+            const { password, ...userRest } = user;
+            return { ...rest, user: userRest };
+        });
+    }
+    async updateCard(profileId, dto) {
+        const profile = await this.prisma.profile.findUnique({ where: { id: profileId } });
+        if (!profile) {
+            throw new common_1.NotFoundException('Profile not found');
+        }
+        if (dto.serial) {
+            const existing = await this.prisma.card.findUnique({ where: { serial: dto.serial } });
+            if (existing && existing.profileId !== profile.id) {
+                throw new common_1.ConflictException('Ese número de serie ya está registrado en otra tarjeta');
+            }
+        }
+        const base = process.env.PUBLIC_BASE_URL ?? 'https://dominio.com';
+        const url = `${base}/${profile.slug}`;
+        return this.prisma.card.upsert({
+            where: { profileId: profile.id },
+            update: {
+                ...(dto.serial !== undefined ? { serial: dto.serial } : {}),
+                ...(dto.programmed !== undefined ? { programmed: dto.programmed } : {}),
+                url,
+            },
+            create: { profileId: profile.id, serial: dto.serial, programmed: dto.programmed ?? false, url },
         });
     }
     analyticsOverview() {

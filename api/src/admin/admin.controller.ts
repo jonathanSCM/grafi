@@ -5,6 +5,7 @@ import { Roles } from '../auth/roles.decorator';
 import { AdminService } from './admin.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
+import { AdminUpdateCardDto } from '../cards/dto/admin-update-card.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
@@ -30,6 +31,11 @@ export class AdminController {
   @Get('cards')
   listCards() {
     return this.adminService.listCards();
+  }
+
+  @Patch('cards/:profileId')
+  updateCard(@Param('profileId') profileId: string, @Body() dto: AdminUpdateCardDto) {
+    return this.adminService.updateCard(profileId, dto);
   }
 
   @Get('analytics/overview')

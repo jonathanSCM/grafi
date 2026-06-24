@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { resolveProfileStyle } from '@/lib/profile-style';
+import CatalogList from '@/components/CatalogList';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api';
 
@@ -28,9 +29,23 @@ interface CompanyPublic {
   collaborators: Collaborator[];
 }
 
+interface CatalogItem {
+  id: string;
+  title: string;
+  description: string | null;
+  image: string | null;
+  link: string | null;
+}
+
 async function getCompany(slug: string): Promise<CompanyPublic | null> {
   const res = await fetch(`${API_URL}/companies/public/${slug}`, { cache: 'no-store' });
   if (!res.ok) return null;
+  return res.json();
+}
+
+async function getCatalog(slug: string): Promise<CatalogItem[]> {
+  const res = await fetch(`${API_URL}/companies/public/${slug}/catalog`, { cache: 'no-store' });
+  if (!res.ok) return [];
   return res.json();
 }
 
@@ -46,6 +61,8 @@ export default async function CompanyPublicPage({
   if (company.redirectEnabled && company.website) {
     redirect(company.website);
   }
+
+  const catalog = await getCatalog(slug);
 
   const style = resolveProfileStyle(company);
 
@@ -119,6 +136,8 @@ export default async function CompanyPublicPage({
             <p className="text-sm opacity-50 text-center py-8">Sin perfiles públicos todavía.</p>
           )}
         </div>
+
+        <CatalogList items={catalog} textColor={style.textColor} />
       </div>
     </main>
   );

@@ -1,19 +1,9 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
-
-export enum LinkTypeDto {
-  WHATSAPP = 'WHATSAPP',
-  CALL = 'CALL',
-  EMAIL = 'EMAIL',
-  WEBSITE = 'WEBSITE',
-  PROJECTS = 'PROJECTS',
-  SCHEDULE_MEETING = 'SCHEDULE_MEETING',
-  SAVE_CONTACT = 'SAVE_CONTACT',
-  CUSTOM = 'CUSTOM',
-}
+import { LinkType } from '@prisma/client';
 
 export class CreateLinkDto {
-  @IsEnum(LinkTypeDto)
-  type: LinkTypeDto;
+  @IsEnum(LinkType)
+  type: LinkType;
 
   @IsString()
   title: string;

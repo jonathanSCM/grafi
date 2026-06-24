@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: '/panel/links', label: 'Botones', icon: '☰' },
   { href: '/panel/tarjeta', label: 'Tarjeta NFC', icon: '◧' },
   { href: '/panel/qr', label: 'Código QR', icon: '▦' },
+  { href: '/panel/leads', label: 'Leads', icon: '✉' },
   { href: '/panel/analiticas', label: 'Analíticas', icon: '◷' },
 ];
 
