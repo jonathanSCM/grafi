@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
+import { Download } from 'lucide-react';
 import type { Profile, ProfileLink } from '@/lib/types';
 import { resolveProfileStyle } from '@/lib/profile-style';
 import LinkIcon from '@/components/LinkIcon';
@@ -134,6 +135,20 @@ export default function ProfileView({ profile }: { profile: Profile }) {
             </button>
           ))}
         </div>
+
+        <a
+          href={`${API_URL}/vcard/${profile.slug}`}
+          onClick={() => trackEvent(profile.slug, 'SAVE_CONTACT_CLICK')}
+          className="w-full rounded-2xl border py-3.5 px-4 text-sm font-medium transition active:scale-[0.98] hover:opacity-90 shadow-sm flex items-center justify-center gap-2 mt-2"
+          style={{
+            backgroundColor: style.buttonBackground,
+            borderColor: style.buttonBorder,
+            color: style.buttonTextColor,
+          }}
+        >
+          <Download className="w-4 h-4 shrink-0" />
+          Guardar contacto
+        </a>
 
         <p className="text-[11px] opacity-40 mt-6">
           {typeof window !== 'undefined' ? window.location.host : ''}/{profile.slug}
