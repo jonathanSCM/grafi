@@ -1,0 +1,311 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  ADMIN
+  COMPANY_ADMIN
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum Theme {
+  LIGHT
+  DARK
+}
+
+enum PhotoStyle {
+  COLOR
+  BLACK_AND_WHITE
+}
+
+enum BackgroundType {
+  THEME
+  SOLID
+  GRADIENT
+}
+
+enum LinkType {
+  WHATSAPP
+  CALL
+  EMAIL
+  WEBSITE
+  PROJECTS
+  SCHEDULE_MEETING
+  SAVE_CONTACT
+  CUSTOM
+}
+
+enum EventType {
+  PROFILE_VIEW
+  NFC_SCAN
+  QR_SCAN
+  WHATSAPP_CLICK
+  PHONE_CLICK
+  EMAIL_CLICK
+  SOCIAL_CLICK
+  CUSTOM_LINK_CLICK
+  SAVE_CONTACT_CLICK
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  TRIAL
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  description String? @db.Text
+  logo      String?
+  website   String? @db.Text
+  redirectEnabled Boolean @default(false)
+
+  theme           Theme          @default(LIGHT)
+  backgroundType  BackgroundType @default(THEME)
+  backgroundColor String?
+  backgroundTo    String?
+  buttonColor     String?
+  buttonTextColor String?
+  textColor       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User[]
+
+  @@map("companies")
+}
+
+model Plan {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  slug          String   @unique
+  priceMonthly  Decimal  @db.Decimal(10, 2)
+  features      Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users         User[]
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  password  String
+  role      Role       @default(USER)
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  planId    String?
+  plan      Plan?      @relation(fields: [planId], references: [id])
+
+  companyId String?
+  company   Company?   @relation(fields: [companyId], references: [id])
+
+  profile       Profile?
+  subscriptions Subscription[]
+  payments      Payment[]
+
+  @@map("users")
+}
+
+model Profile {
+  id          String     @id @default(cuid())
+  userId      String     @unique
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  slug        String     @unique
+  fullName    String
+  position    String?
+  companyName String?
+  bio         String?    @db.Text
+  photo       String?
+  logo        String?
+  theme       Theme      @default(LIGHT)
+  photoStyle  PhotoStyle @default(COLOR)
+  isActive    Boolean    @default(true)
+
+  backgroundType   BackgroundType @default(THEME)
+  backgroundColor  String?
+  backgroundTo     String?
+  buttonColor      String?
+  buttonTextColor  String?
+  textColor        String?
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  links            Link[]
+  socialLinks      SocialLink[]
+  card             Card?
+  qrCode           QrCode?
+  analyticsEvents  AnalyticsEvent[]
+  leads            Lead[]
+
+  @@map("profiles")
+}
+
+model Link {
+  id         String   @id @default(cuid())
+  profileId  String
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  type       LinkType
+  title      String
+  url        String   @db.Text
+  icon       String?
+  order      Int      @default(0)
+  isActive   Boolean  @default(true)
+  clickCount Int      @default(0)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  analyticsEvents AnalyticsEvent[]
+
+  @@map("links")
+}
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  platform  String
+  url       String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("social_links")
+}
+
+model Card {
+  id         String   @id @default(cuid())
+  profileId  String   @unique
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  serial     String?  @unique
+  programmed Boolean  @default(false)
+  url        String   @db.Text
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("cards")
+}
+
+model QrCode {
+  id        String   @id @default(cuid())
+  profileId String   @unique
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  url       String   @db.Text
+  imagePath String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("qr_codes")
+}
+
+model AnalyticsEvent {
+  id        String    @id @default(cuid())
+  profileId String
+  profile   Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  eventType EventType
+  source    String?
+  linkId    String?
+  link      Link?     @relation(fields: [linkId], references: [id])
+
+  ipHash    String?
+  device    String?
+  browser   String?
+  country   String?
+
+  createdAt DateTime  @default(now())
+
+  @@map("analytics_events")
+  @@index([profileId, createdAt])
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  name      String
+  email     String?
+  phone     String?
+  message   String?  @db.Text
+  source    String?
+
+  createdAt DateTime @default(now())
+
+  @@map("leads")
+}
+
+model Subscription {
+  id        String             @id @default(cuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId    String
+  plan      Plan               @relation(fields: [planId], references: [id])
+
+  status    SubscriptionStatus @default(ACTIVE)
+  startedAt DateTime           @default(now())
+  endsAt    DateTime?
+
+  payments  Payment[]
+
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  amount         Decimal       @db.Decimal(10, 2)
+  status         PaymentStatus @default(PENDING)
+  method         String?
+  notes          String?  @db.Text
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@map("payments")
+}

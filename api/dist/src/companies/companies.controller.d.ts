@@ -1,0 +1,197 @@
+import { CompaniesService } from './companies.service';
+import { CreateCompanyDto } from './dto/create-company.dto';
+import { AssignUserDto } from './dto/assign-user.dto';
+import { UpdateCompanyDto } from './dto/update-company.dto';
+import { AddCompanyUserDto } from './dto/add-company-user.dto';
+export declare class AdminCompaniesController {
+    private readonly companiesService;
+    constructor(companiesService: CompaniesService);
+    list(): import("@prisma/client").Prisma.PrismaPromise<({
+        _count: {
+            users: number;
+        };
+    } & {
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        theme: import("@prisma/client").$Enums.Theme;
+        logo: string | null;
+        backgroundType: import("@prisma/client").$Enums.BackgroundType;
+        backgroundColor: string | null;
+        backgroundTo: string | null;
+        buttonColor: string | null;
+        buttonTextColor: string | null;
+        textColor: string | null;
+        description: string | null;
+        website: string | null;
+        redirectEnabled: boolean;
+    })[]>;
+    create(dto: CreateCompanyDto): Promise<{
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        theme: import("@prisma/client").$Enums.Theme;
+        logo: string | null;
+        backgroundType: import("@prisma/client").$Enums.BackgroundType;
+        backgroundColor: string | null;
+        backgroundTo: string | null;
+        buttonColor: string | null;
+        buttonTextColor: string | null;
+        textColor: string | null;
+        description: string | null;
+        website: string | null;
+        redirectEnabled: boolean;
+    }>;
+    getDetail(id: string): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        description: string | null;
+        logo: string | null;
+        website: string | null;
+        redirectEnabled: boolean;
+        theme: import("@prisma/client").$Enums.Theme;
+        backgroundType: import("@prisma/client").$Enums.BackgroundType;
+        backgroundColor: string | null;
+        backgroundTo: string | null;
+        buttonColor: string | null;
+        buttonTextColor: string | null;
+        textColor: string | null;
+        collaborators: {
+            id: string;
+            name: string;
+            email: string;
+            status: import("@prisma/client").$Enums.UserStatus;
+            slug: string | null;
+            linkCount: number;
+            totalEvents: number;
+        }[];
+        totalEvents: number;
+    }>;
+    update(id: string, dto: UpdateCompanyDto): Promise<{
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        theme: import("@prisma/client").$Enums.Theme;
+        logo: string | null;
+        backgroundType: import("@prisma/client").$Enums.BackgroundType;
+        backgroundColor: string | null;
+        backgroundTo: string | null;
+        buttonColor: string | null;
+        buttonTextColor: string | null;
+        textColor: string | null;
+        description: string | null;
+        website: string | null;
+        redirectEnabled: boolean;
+    }>;
+    assign(id: string, dto: AssignUserDto): Promise<{
+        password: string;
+        name: string;
+        email: string;
+        id: string;
+        role: import("@prisma/client").$Enums.Role;
+        status: import("@prisma/client").$Enums.UserStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        planId: string | null;
+        companyId: string | null;
+    }>;
+    unassign(userId: string): Promise<{
+        password: string;
+        name: string;
+        email: string;
+        id: string;
+        role: import("@prisma/client").$Enums.Role;
+        status: import("@prisma/client").$Enums.UserStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        planId: string | null;
+        companyId: string | null;
+    }>;
+}
+export declare class CompaniesController {
+    private readonly companiesService;
+    constructor(companiesService: CompaniesService);
+    getMine(req: any): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        description: string | null;
+        logo: string | null;
+        website: string | null;
+        redirectEnabled: boolean;
+        theme: import("@prisma/client").$Enums.Theme;
+        backgroundType: import("@prisma/client").$Enums.BackgroundType;
+        backgroundColor: string | null;
+        backgroundTo: string | null;
+        buttonColor: string | null;
+        buttonTextColor: string | null;
+        textColor: string | null;
+        collaborators: {
+            id: string;
+            name: string;
+            email: string;
+            status: import("@prisma/client").$Enums.UserStatus;
+            slug: string | null;
+            linkCount: number;
+            totalEvents: number;
+        }[];
+        totalEvents: number;
+    }>;
+    updateMine(req: any, dto: UpdateCompanyDto): Promise<{
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        theme: import("@prisma/client").$Enums.Theme;
+        logo: string | null;
+        backgroundType: import("@prisma/client").$Enums.BackgroundType;
+        backgroundColor: string | null;
+        backgroundTo: string | null;
+        buttonColor: string | null;
+        buttonTextColor: string | null;
+        textColor: string | null;
+        description: string | null;
+        website: string | null;
+        redirectEnabled: boolean;
+    }>;
+    addUser(req: any, dto: AddCompanyUserDto): Promise<{
+        name: string;
+        email: string;
+        id: string;
+        role: import("@prisma/client").$Enums.Role;
+        status: import("@prisma/client").$Enums.UserStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        planId: string | null;
+        companyId: string | null;
+    }>;
+    getPublic(slug: string): Promise<{
+        name: string;
+        slug: string;
+        description: string | null;
+        logo: string | null;
+        website: string | null;
+        redirectEnabled: boolean;
+        theme: import("@prisma/client").$Enums.Theme;
+        backgroundType: import("@prisma/client").$Enums.BackgroundType;
+        backgroundColor: string | null;
+        backgroundTo: string | null;
+        buttonColor: string | null;
+        buttonTextColor: string | null;
+        textColor: string | null;
+        collaborators: {
+            slug: string;
+            fullName: string;
+            position: string | null;
+            photo: string | null;
+        }[];
+    }>;
+}
