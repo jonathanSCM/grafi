@@ -135,7 +135,9 @@ export default function ProfileView({ profile }: { profile: Profile }) {
           ))}
         </div>
 
-        <p className="text-[11px] opacity-40 mt-6">dominio.com/{profile.slug}</p>
+        <p className="text-[11px] opacity-40 mt-6">
+          {typeof window !== 'undefined' ? window.location.host : ''}/{profile.slug}
+        </p>
       </div>
     </main>
   );
