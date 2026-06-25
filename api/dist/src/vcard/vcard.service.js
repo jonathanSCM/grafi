@@ -22,7 +22,7 @@ let VcardService = class VcardService {
             where: { slug },
             include: { links: true, user: true },
         });
-        if (!profile) {
+        if (!profile || !profile.isActive || profile.user.status !== 'ACTIVE') {
             throw new common_1.NotFoundException('Profile not found');
         }
         const phoneLink = profile.links.find((l) => l.type === 'CALL' || l.type === 'WHATSAPP');

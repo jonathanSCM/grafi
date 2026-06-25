@@ -27,7 +27,7 @@ export class ProfilesService {
         user: { include: { company: true } },
       },
     });
-    if (!profile) {
+    if (!profile || profile.user.status !== 'ACTIVE') {
       throw new NotFoundException('Profile not found');
     }
     const { user, ...rest } = profile;

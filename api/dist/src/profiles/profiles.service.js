@@ -35,7 +35,7 @@ let ProfilesService = class ProfilesService {
                 user: { include: { company: true } },
             },
         });
-        if (!profile) {
+        if (!profile || profile.user.status !== 'ACTIVE') {
             throw new common_1.NotFoundException('Profile not found');
         }
         const { user, ...rest } = profile;

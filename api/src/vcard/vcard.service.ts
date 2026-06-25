@@ -10,7 +10,7 @@ export class VcardService {
       where: { slug },
       include: { links: true, user: true },
     });
-    if (!profile) {
+    if (!profile || !profile.isActive || profile.user.status !== 'ACTIVE') {
       throw new NotFoundException('Profile not found');
     }
 
