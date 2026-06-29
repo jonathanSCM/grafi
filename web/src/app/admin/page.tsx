@@ -189,21 +189,24 @@ export default function AdminUsersPage() {
                       </button>
                     </div>
                   ) : (
-                    <button
-                      onClick={() => startEditLimit(u)}
-                      className="text-xs flex items-center gap-1.5 hover:underline"
-                      title="Editar límite de botones"
-                    >
+                    <div className="flex items-center gap-1.5">
                       <span className="font-medium">{u.effectiveButtonLimit}</span>
                       {u.buttonLimitOverride !== null && (
-                        <span className="text-amber-600 border border-amber-200 bg-amber-50 rounded-full px-1.5">
+                        <span className="text-xs text-amber-600 border border-amber-200 bg-amber-50 rounded-full px-1.5">
                           personalizado
                         </span>
                       )}
                       {u.buttonLimitOverride === null && u.plan && (
-                        <span className="text-neutral-400">({u.plan.name})</span>
+                        <span className="text-xs text-neutral-400">({u.plan.name})</span>
                       )}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => startEditLimit(u)}
+                        className="text-xs border border-neutral-300 rounded-full px-2.5 py-1 hover:bg-neutral-100 transition"
+                      >
+                        Editar
+                      </button>
+                    </div>
                   )}
                 </td>
                 <td className="py-3 px-4 text-right">
