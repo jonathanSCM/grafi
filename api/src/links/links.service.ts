@@ -37,7 +37,10 @@ export class LinksService {
   async getLimit(userId: string) {
     const profileId = await this.getOwnedProfileId(userId);
     const count = await this.prisma.link.count({ where: { profileId } });
-    const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { plan: true } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { plan: true, company: { include: { plan: true } } },
+    });
     return { count, limit: effectiveButtonLimit(user!) };
   }
 
@@ -45,7 +48,10 @@ export class LinksService {
     const profileId = await this.getOwnedProfileId(userId);
     const count = await this.prisma.link.count({ where: { profileId } });
 
-    const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { plan: true } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { plan: true, company: { include: { plan: true } } },
+    });
     const limit = effectiveButtonLimit(user!);
     if (count >= limit) {
       throw new ForbiddenException(

@@ -18,6 +18,7 @@ interface AdminUser {
   profile?: { slug: string } | null;
   planId: string | null;
   plan: Plan | null;
+  company: { name: string; plan: Plan | null } | null;
   buttonLimitOverride: number | null;
   effectiveButtonLimit: number;
 }
@@ -158,7 +159,9 @@ export default function AdminUsersPage() {
                       <select
                         value={limitDraft.planId}
                         onChange={(e) => setLimitDraft({ ...limitDraft, planId: e.target.value })}
-                        className="border border-neutral-300 rounded-lg px-1.5 py-1 text-xs outline-none focus:ring-2 focus:ring-black/10"
+                        disabled={!!u.company}
+                        title={u.company ? `Pertenece a ${u.company.name}: usa el plan de la empresa` : undefined}
+                        className="border border-neutral-300 rounded-lg px-1.5 py-1 text-xs outline-none focus:ring-2 focus:ring-black/10 disabled:opacity-40"
                       >
                         <option value="">Sin plan (5)</option>
                         {plans.map((p) => (
@@ -196,7 +199,12 @@ export default function AdminUsersPage() {
                           personalizado
                         </span>
                       )}
-                      {u.buttonLimitOverride === null && u.plan && (
+                      {u.buttonLimitOverride === null && u.company && (
+                        <span className="text-xs text-neutral-400">
+                          (empresa: {u.company.plan?.name ?? 'sin plan'})
+                        </span>
+                      )}
+                      {u.buttonLimitOverride === null && !u.company && u.plan && (
                         <span className="text-xs text-neutral-400">({u.plan.name})</span>
                       )}
                       <button

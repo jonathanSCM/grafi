@@ -3,6 +3,11 @@ export declare function effectiveButtonLimit(user: {
     plan: {
         maxButtons: number;
     } | null;
+    company?: {
+        plan: {
+            maxButtons: number;
+        } | null;
+    } | null;
 }): number;
 export declare function effectiveCollaboratorLimit(company: {
     collaboratorLimitOverride: number | null;

@@ -54,7 +54,7 @@ let AdminService = class AdminService {
     }
     async listUsers() {
         const users = await this.prisma.user.findMany({
-            include: { profile: true, plan: true, company: true },
+            include: { profile: true, plan: true, company: { include: { plan: true } } },
             orderBy: { createdAt: 'desc' },
         });
         return users.map(({ password, ...rest }) => ({

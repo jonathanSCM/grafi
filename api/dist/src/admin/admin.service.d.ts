@@ -8,7 +8,19 @@ export declare class AdminService {
     constructor(prisma: PrismaService);
     listUsers(): Promise<{
         effectiveButtonLimit: number;
-        company: {
+        company: ({
+            plan: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                slug: string;
+                priceMonthly: import("@prisma/client-runtime-utils").Decimal;
+                maxButtons: number;
+                maxCollaborators: number;
+                features: import("@prisma/client/runtime/client").JsonValue;
+            } | null;
+        } & {
             name: string;
             id: string;
             createdAt: Date;
@@ -27,7 +39,7 @@ export declare class AdminService {
             website: string | null;
             redirectEnabled: boolean;
             collaboratorLimitOverride: number | null;
-        } | null;
+        }) | null;
         plan: {
             name: string;
             id: string;
