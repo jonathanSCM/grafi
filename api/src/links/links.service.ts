@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateLinkDto } from './dto/create-link.dto';
 import { UpdateLinkDto } from './dto/update-link.dto';
 import { ReorderLinksDto } from './dto/reorder-links.dto';
+import { effectiveButtonLimit } from '../plans/limits';
 
 @Injectable()
 export class LinksService {
@@ -33,9 +34,25 @@ export class LinksService {
     return this.prisma.link.findMany({ where: { profileId }, orderBy: { order: 'asc' } });
   }
 
+  async getLimit(userId: string) {
+    const profileId = await this.getOwnedProfileId(userId);
+    const count = await this.prisma.link.count({ where: { profileId } });
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { plan: true } });
+    return { count, limit: effectiveButtonLimit(user!) };
+  }
+
   async create(userId: string, dto: CreateLinkDto) {
     const profileId = await this.getOwnedProfileId(userId);
     const count = await this.prisma.link.count({ where: { profileId } });
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { plan: true } });
+    const limit = effectiveButtonLimit(user!);
+    if (count >= limit) {
+      throw new ForbiddenException(
+        `Alcanzaste el límite de ${limit} botones de tu plan. Contacta a soporte para ampliarlo.`,
+      );
+    }
+
     return this.prisma.link.create({
       data: { ...dto, profileId, order: count },
     });

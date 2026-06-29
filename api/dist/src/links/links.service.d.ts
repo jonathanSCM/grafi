@@ -20,6 +20,10 @@ export declare class LinksService {
         icon: string | null;
         clickCount: number;
     }[]>;
+    getLimit(userId: string): Promise<{
+        count: number;
+        limit: number;
+    }>;
     create(userId: string, dto: CreateLinkDto): Promise<{
         url: string;
         id: string;

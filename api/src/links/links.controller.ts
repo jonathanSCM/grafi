@@ -15,6 +15,11 @@ export class LinksController {
     return this.linksService.list(req.user.userId);
   }
 
+  @Get('limit')
+  limit(@Req() req: any) {
+    return this.linksService.getLimit(req.user.userId);
+  }
+
   @Post()
   create(@Req() req: any, @Body() dto: CreateLinkDto) {
     return this.linksService.create(req.user.userId, dto);

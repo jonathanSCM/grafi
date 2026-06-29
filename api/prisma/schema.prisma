@@ -94,6 +94,10 @@ model Company {
   buttonTextColor String?
   textColor       String?
 
+  planId    String?
+  plan      Plan?    @relation(fields: [planId], references: [id])
+  collaboratorLimitOverride Int?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -128,11 +132,14 @@ model Plan {
   name          String   @unique
   slug          String   @unique
   priceMonthly  Decimal  @db.Decimal(10, 2)
+  maxButtons      Int      @default(5)
+  maxCollaborators Int     @default(1)
   features      Json
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   users         User[]
+  companies     Company[]
   subscriptions Subscription[]
 
   @@map("plans")
@@ -150,6 +157,7 @@ model User {
 
   planId    String?
   plan      Plan?      @relation(fields: [planId], references: [id])
+  buttonLimitOverride Int?
 
   companyId String?
   company   Company?   @relation(fields: [companyId], references: [id])

@@ -4,6 +4,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { AdminUpdateCardDto } from '../cards/dto/admin-update-card.dto';
+import { UpdateUserLimitDto } from '../plans/dto/update-user-limit.dto';
+import { effectiveButtonLimit } from '../plans/limits';
 
 @Injectable()
 export class AdminService {
@@ -14,7 +16,25 @@ export class AdminService {
       include: { profile: true, plan: true, company: true },
       orderBy: { createdAt: 'desc' },
     });
-    return users.map(({ password, ...rest }) => rest);
+    return users.map(({ password, ...rest }) => ({
+      ...rest,
+      effectiveButtonLimit: effectiveButtonLimit(rest),
+    }));
+  }
+
+  async updateUserLimits(userId: string, dto: UpdateUserLimitDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(dto.planId !== undefined ? { planId: dto.planId } : {}),
+        ...(dto.buttonLimitOverride !== undefined ? { buttonLimitOverride: dto.buttonLimitOverride } : {}),
+      },
+      include: { plan: true },
+    });
   }
 
   async createUser(dto: CreateUserDto) {

@@ -27,6 +27,9 @@ let LinksController = class LinksController {
     list(req) {
         return this.linksService.list(req.user.userId);
     }
+    limit(req) {
+        return this.linksService.getLimit(req.user.userId);
+    }
     create(req, dto) {
         return this.linksService.create(req.user.userId, dto);
     }
@@ -48,6 +51,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], LinksController.prototype, "list", null);
+__decorate([
+    (0, common_1.Get)('limit'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], LinksController.prototype, "limit", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Req)()),

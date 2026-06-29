@@ -2,15 +2,18 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { AdminUpdateCardDto } from '../cards/dto/admin-update-card.dto';
+import { UpdateUserLimitDto } from '../plans/dto/update-user-limit.dto';
 export declare class AdminService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     listUsers(): Promise<{
+        effectiveButtonLimit: number;
         company: {
             name: string;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            planId: string | null;
             slug: string;
             theme: import("@prisma/client").$Enums.Theme;
             logo: string | null;
@@ -23,6 +26,7 @@ export declare class AdminService {
             description: string | null;
             website: string | null;
             redirectEnabled: boolean;
+            collaboratorLimitOverride: number | null;
         } | null;
         plan: {
             name: string;
@@ -31,6 +35,8 @@ export declare class AdminService {
             updatedAt: Date;
             slug: string;
             priceMonthly: import("@prisma/client-runtime-utils").Decimal;
+            maxButtons: number;
+            maxCollaborators: number;
             features: import("@prisma/client/runtime/client").JsonValue;
         } | null;
         profile: {
@@ -63,8 +69,34 @@ export declare class AdminService {
         createdAt: Date;
         updatedAt: Date;
         planId: string | null;
+        buttonLimitOverride: number | null;
         companyId: string | null;
     }[]>;
+    updateUserLimits(userId: string, dto: UpdateUserLimitDto): Promise<{
+        plan: {
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            slug: string;
+            priceMonthly: import("@prisma/client-runtime-utils").Decimal;
+            maxButtons: number;
+            maxCollaborators: number;
+            features: import("@prisma/client/runtime/client").JsonValue;
+        } | null;
+    } & {
+        password: string;
+        name: string;
+        email: string;
+        id: string;
+        role: import("@prisma/client").$Enums.Role;
+        status: import("@prisma/client").$Enums.UserStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        planId: string | null;
+        buttonLimitOverride: number | null;
+        companyId: string | null;
+    }>;
     createUser(dto: CreateUserDto): Promise<{
         name: string;
         email: string;
@@ -74,6 +106,7 @@ export declare class AdminService {
         createdAt: Date;
         updatedAt: Date;
         planId: string | null;
+        buttonLimitOverride: number | null;
         companyId: string | null;
     }>;
     updateStatus(userId: string, dto: UpdateUserStatusDto): Promise<{
@@ -86,6 +119,7 @@ export declare class AdminService {
         createdAt: Date;
         updatedAt: Date;
         planId: string | null;
+        buttonLimitOverride: number | null;
         companyId: string | null;
     }>;
     listCards(): Promise<{
@@ -98,6 +132,7 @@ export declare class AdminService {
             createdAt: Date;
             updatedAt: Date;
             planId: string | null;
+            buttonLimitOverride: number | null;
             companyId: string | null;
         };
         card: {

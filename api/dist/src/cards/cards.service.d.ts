@@ -47,6 +47,7 @@ export declare class CardsService {
                 createdAt: Date;
                 updatedAt: Date;
                 planId: string | null;
+                buttonLimitOverride: number | null;
                 companyId: string | null;
             };
         } & {

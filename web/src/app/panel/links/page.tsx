@@ -21,9 +21,11 @@ export default function LinksPage() {
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [fileName, setFileName] = useState('');
+  const [limit, setLimit] = useState<{ count: number; limit: number } | null>(null);
 
   function load() {
     api<ProfileLink[]>('/links').then(setLinks);
+    api<{ count: number; limit: number }>('/links/limit').then(setLimit);
   }
 
   useEffect(load, []);
@@ -74,7 +76,12 @@ export default function LinksPage() {
     }
     const rawValue = def.field === 'phone' ? `${dial}${value}` : value;
     const url = def.field === 'none' ? '' : def.buildUrl(rawValue);
-    await api('/links', { method: 'POST', body: JSON.stringify({ type: activeType, title, url }) });
+    try {
+      await api('/links', { method: 'POST', body: JSON.stringify({ type: activeType, title, url }) });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al crear el botón');
+      return;
+    }
     setActiveType(null);
     setTitle('');
     setValue('');
@@ -109,6 +116,7 @@ export default function LinksPage() {
   }
 
   const activeDef = activeType ? getLinkTypeDef(activeType) : null;
+  const atLimit = limit ? limit.count >= limit.limit : false;
 
   return (
     <div className="max-w-xl flex flex-col gap-8">
@@ -116,16 +124,29 @@ export default function LinksPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Botones</h1>
         <p className="text-sm text-neutral-500 mt-1">
           Estos son los botones de acción que verán tus visitantes en tu perfil público.
+          {limit && (
+            <span className={atLimit ? 'text-amber-600 font-medium' : ''}>
+              {' '}
+              {limit.count}/{limit.limit} usados.
+            </span>
+          )}
         </p>
       </div>
 
       <div className="bg-white border border-neutral-200 rounded-2xl p-5 flex flex-col gap-4">
         <h2 className="text-sm font-medium">Agregar botón</h2>
 
+        {atLimit && !activeType && (
+          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+            Alcanzaste el límite de {limit?.limit} botones de tu plan. Contacta a soporte para ampliarlo.
+          </p>
+        )}
+
         {!activeType && !picking && (
           <button
             onClick={() => setPicking(true)}
-            className="bg-black text-white rounded-xl py-2.5 font-medium text-sm hover:bg-neutral-800 transition"
+            disabled={atLimit}
+            className="bg-black text-white rounded-xl py-2.5 font-medium text-sm hover:bg-neutral-800 transition disabled:opacity-40 disabled:cursor-not-allowed"
           >
             + Elegir tipo de botón
           </button>

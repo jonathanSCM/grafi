@@ -18,6 +18,10 @@ export declare class LinksController {
         icon: string | null;
         clickCount: number;
     }[]>;
+    limit(req: any): Promise<{
+        count: number;
+        limit: number;
+    }>;
     create(req: any, dto: CreateLinkDto): Promise<{
         url: string;
         id: string;

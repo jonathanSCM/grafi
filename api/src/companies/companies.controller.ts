@@ -7,6 +7,7 @@ import { CreateCompanyDto } from './dto/create-company.dto';
 import { AssignUserDto } from './dto/assign-user.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { AddCompanyUserDto } from './dto/add-company-user.dto';
+import { UpdateCompanyLimitDto } from '../plans/dto/update-company-limit.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
@@ -32,6 +33,11 @@ export class AdminCompaniesController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateCompanyDto) {
     return this.companiesService.update(id, dto);
+  }
+
+  @Patch(':id/limits')
+  updateLimits(@Param('id') id: string, @Body() dto: UpdateCompanyLimitDto) {
+    return this.companiesService.updateLimits(id, dto);
   }
 
   @Post(':id/assign')

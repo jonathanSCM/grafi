@@ -21,6 +21,7 @@ const admin_service_1 = require("./admin.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
 const update_user_status_dto_1 = require("./dto/update-user-status.dto");
 const admin_update_card_dto_1 = require("../cards/dto/admin-update-card.dto");
+const update_user_limit_dto_1 = require("../plans/dto/update-user-limit.dto");
 let AdminController = class AdminController {
     adminService;
     constructor(adminService) {
@@ -34,6 +35,9 @@ let AdminController = class AdminController {
     }
     updateStatus(id, dto) {
         return this.adminService.updateStatus(id, dto);
+    }
+    updateLimits(id, dto) {
+        return this.adminService.updateUserLimits(id, dto);
     }
     listCards() {
         return this.adminService.listCards();
@@ -67,6 +71,14 @@ __decorate([
     __metadata("design:paramtypes", [String, update_user_status_dto_1.UpdateUserStatusDto]),
     __metadata("design:returntype", void 0)
 ], AdminController.prototype, "updateStatus", null);
+__decorate([
+    (0, common_1.Patch)('users/:id/limits'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_user_limit_dto_1.UpdateUserLimitDto]),
+    __metadata("design:returntype", void 0)
+], AdminController.prototype, "updateLimits", null);
 __decorate([
     (0, common_1.Get)('cards'),
     __metadata("design:type", Function),

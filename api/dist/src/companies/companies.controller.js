@@ -22,6 +22,7 @@ const create_company_dto_1 = require("./dto/create-company.dto");
 const assign_user_dto_1 = require("./dto/assign-user.dto");
 const update_company_dto_1 = require("./dto/update-company.dto");
 const add_company_user_dto_1 = require("./dto/add-company-user.dto");
+const update_company_limit_dto_1 = require("../plans/dto/update-company-limit.dto");
 let AdminCompaniesController = class AdminCompaniesController {
     companiesService;
     constructor(companiesService) {
@@ -38,6 +39,9 @@ let AdminCompaniesController = class AdminCompaniesController {
     }
     update(id, dto) {
         return this.companiesService.update(id, dto);
+    }
+    updateLimits(id, dto) {
+        return this.companiesService.updateLimits(id, dto);
     }
     assign(id, dto) {
         return this.companiesService.assignUser(id, dto);
@@ -75,6 +79,14 @@ __decorate([
     __metadata("design:paramtypes", [String, update_company_dto_1.UpdateCompanyDto]),
     __metadata("design:returntype", void 0)
 ], AdminCompaniesController.prototype, "update", null);
+__decorate([
+    (0, common_1.Patch)(':id/limits'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_company_limit_dto_1.UpdateCompanyLimitDto]),
+    __metadata("design:returntype", void 0)
+], AdminCompaniesController.prototype, "updateLimits", null);
 __decorate([
     (0, common_1.Post)(':id/assign'),
     __param(0, (0, common_1.Param)('id')),

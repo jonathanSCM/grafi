@@ -46,16 +46,18 @@ exports.CompaniesService = void 0;
 const common_1 = require("@nestjs/common");
 const bcrypt = __importStar(require("bcrypt"));
 const prisma_service_1 = require("../prisma/prisma.service");
+const limits_1 = require("../plans/limits");
 let CompaniesService = class CompaniesService {
     prisma;
     constructor(prisma) {
         this.prisma = prisma;
     }
-    listAll() {
-        return this.prisma.company.findMany({
-            include: { _count: { select: { users: true } } },
+    async listAll() {
+        const companies = await this.prisma.company.findMany({
+            include: { _count: { select: { users: true } }, plan: true },
             orderBy: { createdAt: 'desc' },
         });
+        return companies.map((c) => ({ ...c, effectiveCollaboratorLimit: (0, limits_1.effectiveCollaboratorLimit)(c) }));
     }
     async create(dto) {
         const existing = await this.prisma.company.findUnique({ where: { slug: dto.slug } });
@@ -71,11 +73,41 @@ let CompaniesService = class CompaniesService {
         }
         return this.prisma.company.update({ where: { id: companyId }, data: dto });
     }
+    async assertCollaboratorRoom(companyId) {
+        const company = await this.prisma.company.findUnique({
+            where: { id: companyId },
+            include: { plan: true, _count: { select: { users: true } } },
+        });
+        if (!company) {
+            throw new common_1.NotFoundException('Company not found');
+        }
+        const limit = (0, limits_1.effectiveCollaboratorLimit)(company);
+        if (company._count.users >= limit) {
+            throw new common_1.ForbiddenException(`Alcanzaste el límite de ${limit} colaboradores de tu plan empresarial. Contacta a soporte para ampliarlo.`);
+        }
+    }
+    async updateLimits(companyId, dto) {
+        const company = await this.prisma.company.findUnique({ where: { id: companyId } });
+        if (!company) {
+            throw new common_1.NotFoundException('Company not found');
+        }
+        return this.prisma.company.update({
+            where: { id: companyId },
+            data: {
+                ...(dto.planId !== undefined ? { planId: dto.planId } : {}),
+                ...(dto.collaboratorLimitOverride !== undefined
+                    ? { collaboratorLimitOverride: dto.collaboratorLimitOverride }
+                    : {}),
+            },
+            include: { plan: true },
+        });
+    }
     async assignUser(companyId, dto) {
         const company = await this.prisma.company.findUnique({ where: { id: companyId } });
         if (!company) {
             throw new common_1.NotFoundException('Company not found');
         }
+        await this.assertCollaboratorRoom(companyId);
         const user = await this.prisma.user.findUnique({
             where: { id: dto.userId },
             include: { company: true },
@@ -103,6 +135,7 @@ let CompaniesService = class CompaniesService {
         if (!me?.companyId) {
             throw new common_1.ForbiddenException('Not assigned to a company');
         }
+        await this.assertCollaboratorRoom(me.companyId);
         const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
         if (existing) {
             throw new common_1.ConflictException('Email already registered');
@@ -171,6 +204,7 @@ let CompaniesService = class CompaniesService {
         const company = await this.prisma.company.findUnique({
             where: { id: companyId },
             include: {
+                plan: true,
                 users: {
                     include: {
                         profile: {
@@ -213,6 +247,9 @@ let CompaniesService = class CompaniesService {
             buttonColor: company.buttonColor,
             buttonTextColor: company.buttonTextColor,
             textColor: company.textColor,
+            plan: company.plan,
+            collaboratorLimitOverride: company.collaboratorLimitOverride,
+            effectiveCollaboratorLimit: (0, limits_1.effectiveCollaboratorLimit)(company),
             collaborators: company.users.map((u) => ({
                 id: u.id,
                 profileId: u.profile?.id ?? null,

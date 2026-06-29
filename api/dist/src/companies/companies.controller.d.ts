@@ -3,18 +3,31 @@ import { CreateCompanyDto } from './dto/create-company.dto';
 import { AssignUserDto } from './dto/assign-user.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { AddCompanyUserDto } from './dto/add-company-user.dto';
+import { UpdateCompanyLimitDto } from '../plans/dto/update-company-limit.dto';
 export declare class AdminCompaniesController {
     private readonly companiesService;
     constructor(companiesService: CompaniesService);
-    list(): import("@prisma/client").Prisma.PrismaPromise<({
+    list(): Promise<{
+        effectiveCollaboratorLimit: number;
+        plan: {
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            slug: string;
+            priceMonthly: import("@prisma/client-runtime-utils").Decimal;
+            maxButtons: number;
+            maxCollaborators: number;
+            features: import("@prisma/client/runtime/client").JsonValue;
+        } | null;
         _count: {
             users: number;
         };
-    } & {
         name: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        planId: string | null;
         slug: string;
         theme: import("@prisma/client").$Enums.Theme;
         logo: string | null;
@@ -27,12 +40,14 @@ export declare class AdminCompaniesController {
         description: string | null;
         website: string | null;
         redirectEnabled: boolean;
-    })[]>;
+        collaboratorLimitOverride: number | null;
+    }[]>;
     create(dto: CreateCompanyDto): Promise<{
         name: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        planId: string | null;
         slug: string;
         theme: import("@prisma/client").$Enums.Theme;
         logo: string | null;
@@ -45,6 +60,7 @@ export declare class AdminCompaniesController {
         description: string | null;
         website: string | null;
         redirectEnabled: boolean;
+        collaboratorLimitOverride: number | null;
     }>;
     getDetail(id: string): Promise<{
         id: string;
@@ -61,6 +77,19 @@ export declare class AdminCompaniesController {
         buttonColor: string | null;
         buttonTextColor: string | null;
         textColor: string | null;
+        plan: {
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            slug: string;
+            priceMonthly: import("@prisma/client-runtime-utils").Decimal;
+            maxButtons: number;
+            maxCollaborators: number;
+            features: import("@prisma/client/runtime/client").JsonValue;
+        } | null;
+        collaboratorLimitOverride: number | null;
+        effectiveCollaboratorLimit: number;
         collaborators: {
             id: string;
             profileId: string | null;
@@ -80,6 +109,7 @@ export declare class AdminCompaniesController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        planId: string | null;
         slug: string;
         theme: import("@prisma/client").$Enums.Theme;
         logo: string | null;
@@ -92,6 +122,39 @@ export declare class AdminCompaniesController {
         description: string | null;
         website: string | null;
         redirectEnabled: boolean;
+        collaboratorLimitOverride: number | null;
+    }>;
+    updateLimits(id: string, dto: UpdateCompanyLimitDto): Promise<{
+        plan: {
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            slug: string;
+            priceMonthly: import("@prisma/client-runtime-utils").Decimal;
+            maxButtons: number;
+            maxCollaborators: number;
+            features: import("@prisma/client/runtime/client").JsonValue;
+        } | null;
+    } & {
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        planId: string | null;
+        slug: string;
+        theme: import("@prisma/client").$Enums.Theme;
+        logo: string | null;
+        backgroundType: import("@prisma/client").$Enums.BackgroundType;
+        backgroundColor: string | null;
+        backgroundTo: string | null;
+        buttonColor: string | null;
+        buttonTextColor: string | null;
+        textColor: string | null;
+        description: string | null;
+        website: string | null;
+        redirectEnabled: boolean;
+        collaboratorLimitOverride: number | null;
     }>;
     assign(id: string, dto: AssignUserDto): Promise<{
         password: string;
@@ -103,6 +166,7 @@ export declare class AdminCompaniesController {
         createdAt: Date;
         updatedAt: Date;
         planId: string | null;
+        buttonLimitOverride: number | null;
         companyId: string | null;
     }>;
     unassign(userId: string): Promise<{
@@ -115,6 +179,7 @@ export declare class AdminCompaniesController {
         createdAt: Date;
         updatedAt: Date;
         planId: string | null;
+        buttonLimitOverride: number | null;
         companyId: string | null;
     }>;
 }
@@ -136,6 +201,19 @@ export declare class CompaniesController {
         buttonColor: string | null;
         buttonTextColor: string | null;
         textColor: string | null;
+        plan: {
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            slug: string;
+            priceMonthly: import("@prisma/client-runtime-utils").Decimal;
+            maxButtons: number;
+            maxCollaborators: number;
+            features: import("@prisma/client/runtime/client").JsonValue;
+        } | null;
+        collaboratorLimitOverride: number | null;
+        effectiveCollaboratorLimit: number;
         collaborators: {
             id: string;
             profileId: string | null;
@@ -155,6 +233,7 @@ export declare class CompaniesController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        planId: string | null;
         slug: string;
         theme: import("@prisma/client").$Enums.Theme;
         logo: string | null;
@@ -167,6 +246,7 @@ export declare class CompaniesController {
         description: string | null;
         website: string | null;
         redirectEnabled: boolean;
+        collaboratorLimitOverride: number | null;
     }>;
     addUser(req: any, dto: AddCompanyUserDto): Promise<{
         name: string;
@@ -177,6 +257,7 @@ export declare class CompaniesController {
         createdAt: Date;
         updatedAt: Date;
         planId: string | null;
+        buttonLimitOverride: number | null;
         companyId: string | null;
     }>;
     getPublic(slug: string): Promise<{

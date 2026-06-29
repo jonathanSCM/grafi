@@ -4,12 +4,22 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import PasswordInput from '@/components/PasswordInput';
 
+interface Plan {
+  id: string;
+  name: string;
+  maxButtons: number;
+}
+
 interface AdminUser {
   id: string;
   name: string;
   email: string;
   status: 'ACTIVE' | 'SUSPENDED' | 'PENDING';
   profile?: { slug: string } | null;
+  planId: string | null;
+  plan: Plan | null;
+  buttonLimitOverride: number | null;
+  effectiveButtonLimit: number;
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -26,13 +36,37 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [editingLimit, setEditingLimit] = useState<string | null>(null);
+  const [limitDraft, setLimitDraft] = useState({ planId: '', buttonLimitOverride: '' });
 
   function load() {
     api<AdminUser[]>('/admin/users').then(setUsers);
+    api<Plan[]>('/admin/plans').then(setPlans);
   }
 
   useEffect(load, []);
+
+  function startEditLimit(user: AdminUser) {
+    setEditingLimit(user.id);
+    setLimitDraft({
+      planId: user.planId ?? '',
+      buttonLimitOverride: user.buttonLimitOverride !== null ? String(user.buttonLimitOverride) : '',
+    });
+  }
+
+  async function saveLimit(userId: string) {
+    await api(`/admin/users/${userId}/limits`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        planId: limitDraft.planId || null,
+        buttonLimitOverride: limitDraft.buttonLimitOverride === '' ? null : Number(limitDraft.buttonLimitOverride),
+      }),
+    });
+    setEditingLimit(null);
+    load();
+  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -101,6 +135,7 @@ export default function AdminUsersPage() {
               <th className="py-3 px-4 font-medium text-neutral-500 text-xs uppercase tracking-wide">Email</th>
               <th className="py-3 px-4 font-medium text-neutral-500 text-xs uppercase tracking-wide">Perfil</th>
               <th className="py-3 px-4 font-medium text-neutral-500 text-xs uppercase tracking-wide">Estado</th>
+              <th className="py-3 px-4 font-medium text-neutral-500 text-xs uppercase tracking-wide">Botones</th>
               <th className="py-3 px-4"></th>
             </tr>
           </thead>
@@ -117,6 +152,60 @@ export default function AdminUsersPage() {
                     {STATUS_LABELS[u.status]}
                   </span>
                 </td>
+                <td className="py-3 px-4">
+                  {editingLimit === u.id ? (
+                    <div className="flex items-center gap-1.5">
+                      <select
+                        value={limitDraft.planId}
+                        onChange={(e) => setLimitDraft({ ...limitDraft, planId: e.target.value })}
+                        className="border border-neutral-300 rounded-lg px-1.5 py-1 text-xs outline-none focus:ring-2 focus:ring-black/10"
+                      >
+                        <option value="">Sin plan (5)</option>
+                        {plans.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} ({p.maxButtons})
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="custom"
+                        value={limitDraft.buttonLimitOverride}
+                        onChange={(e) => setLimitDraft({ ...limitDraft, buttonLimitOverride: e.target.value })}
+                        className="border border-neutral-300 rounded-lg px-1.5 py-1 text-xs w-16 outline-none focus:ring-2 focus:ring-black/10"
+                      />
+                      <button
+                        onClick={() => saveLimit(u.id)}
+                        className="text-xs bg-black text-white rounded-full px-2.5 py-1"
+                      >
+                        OK
+                      </button>
+                      <button
+                        onClick={() => setEditingLimit(null)}
+                        className="text-xs border border-neutral-300 rounded-full px-2.5 py-1"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => startEditLimit(u)}
+                      className="text-xs flex items-center gap-1.5 hover:underline"
+                      title="Editar límite de botones"
+                    >
+                      <span className="font-medium">{u.effectiveButtonLimit}</span>
+                      {u.buttonLimitOverride !== null && (
+                        <span className="text-amber-600 border border-amber-200 bg-amber-50 rounded-full px-1.5">
+                          personalizado
+                        </span>
+                      )}
+                      {u.buttonLimitOverride === null && u.plan && (
+                        <span className="text-neutral-400">({u.plan.name})</span>
+                      )}
+                    </button>
+                  )}
+                </td>
                 <td className="py-3 px-4 text-right">
                   <button
                     onClick={() => toggleStatus(u)}
@@ -129,7 +218,7 @@ export default function AdminUsersPage() {
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-neutral-400">
+                <td colSpan={6} className="py-8 text-center text-neutral-400">
                   Sin usuarios todavía.
                 </td>
               </tr>

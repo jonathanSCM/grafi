@@ -2,15 +2,18 @@ import { AdminService } from './admin.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { AdminUpdateCardDto } from '../cards/dto/admin-update-card.dto';
+import { UpdateUserLimitDto } from '../plans/dto/update-user-limit.dto';
 export declare class AdminController {
     private readonly adminService;
     constructor(adminService: AdminService);
     listUsers(): Promise<{
+        effectiveButtonLimit: number;
         company: {
             name: string;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            planId: string | null;
             slug: string;
             theme: import("@prisma/client").$Enums.Theme;
             logo: string | null;
@@ -23,6 +26,7 @@ export declare class AdminController {
             description: string | null;
             website: string | null;
             redirectEnabled: boolean;
+            collaboratorLimitOverride: number | null;
         } | null;
         plan: {
             name: string;
@@ -31,6 +35,8 @@ export declare class AdminController {
             updatedAt: Date;
             slug: string;
             priceMonthly: import("@prisma/client-runtime-utils").Decimal;
+            maxButtons: number;
+            maxCollaborators: number;
             features: import("@prisma/client/runtime/client").JsonValue;
         } | null;
         profile: {
@@ -63,6 +69,7 @@ export declare class AdminController {
         createdAt: Date;
         updatedAt: Date;
         planId: string | null;
+        buttonLimitOverride: number | null;
         companyId: string | null;
     }[]>;
     createUser(dto: CreateUserDto): Promise<{
@@ -74,6 +81,7 @@ export declare class AdminController {
         createdAt: Date;
         updatedAt: Date;
         planId: string | null;
+        buttonLimitOverride: number | null;
         companyId: string | null;
     }>;
     updateStatus(id: string, dto: UpdateUserStatusDto): Promise<{
@@ -86,6 +94,32 @@ export declare class AdminController {
         createdAt: Date;
         updatedAt: Date;
         planId: string | null;
+        buttonLimitOverride: number | null;
+        companyId: string | null;
+    }>;
+    updateLimits(id: string, dto: UpdateUserLimitDto): Promise<{
+        plan: {
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            slug: string;
+            priceMonthly: import("@prisma/client-runtime-utils").Decimal;
+            maxButtons: number;
+            maxCollaborators: number;
+            features: import("@prisma/client/runtime/client").JsonValue;
+        } | null;
+    } & {
+        password: string;
+        name: string;
+        email: string;
+        id: string;
+        role: import("@prisma/client").$Enums.Role;
+        status: import("@prisma/client").$Enums.UserStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        planId: string | null;
+        buttonLimitOverride: number | null;
         companyId: string | null;
     }>;
     listCards(): Promise<{
@@ -98,6 +132,7 @@ export declare class AdminController {
             createdAt: Date;
             updatedAt: Date;
             planId: string | null;
+            buttonLimitOverride: number | null;
             companyId: string | null;
         };
         card: {

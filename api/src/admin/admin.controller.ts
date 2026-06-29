@@ -6,6 +6,7 @@ import { AdminService } from './admin.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { AdminUpdateCardDto } from '../cards/dto/admin-update-card.dto';
+import { UpdateUserLimitDto } from '../plans/dto/update-user-limit.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
@@ -26,6 +27,11 @@ export class AdminController {
   @Patch('users/:id/status')
   updateStatus(@Param('id') id: string, @Body() dto: UpdateUserStatusDto) {
     return this.adminService.updateStatus(id, dto);
+  }
+
+  @Patch('users/:id/limits')
+  updateLimits(@Param('id') id: string, @Body() dto: UpdateUserLimitDto) {
+    return this.adminService.updateUserLimits(id, dto);
   }
 
   @Get('cards')

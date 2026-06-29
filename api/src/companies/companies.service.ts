@@ -5,16 +5,19 @@ import { CreateCompanyDto } from './dto/create-company.dto';
 import { AssignUserDto } from './dto/assign-user.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { AddCompanyUserDto } from './dto/add-company-user.dto';
+import { effectiveCollaboratorLimit } from '../plans/limits';
+import { UpdateCompanyLimitDto } from '../plans/dto/update-company-limit.dto';
 
 @Injectable()
 export class CompaniesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  listAll() {
-    return this.prisma.company.findMany({
-      include: { _count: { select: { users: true } } },
+  async listAll() {
+    const companies = await this.prisma.company.findMany({
+      include: { _count: { select: { users: true } }, plan: true },
       orderBy: { createdAt: 'desc' },
     });
+    return companies.map((c) => ({ ...c, effectiveCollaboratorLimit: effectiveCollaboratorLimit(c) }));
   }
 
   async create(dto: CreateCompanyDto) {
@@ -33,11 +36,45 @@ export class CompaniesService {
     return this.prisma.company.update({ where: { id: companyId }, data: dto });
   }
 
+  private async assertCollaboratorRoom(companyId: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      include: { plan: true, _count: { select: { users: true } } },
+    });
+    if (!company) {
+      throw new NotFoundException('Company not found');
+    }
+    const limit = effectiveCollaboratorLimit(company);
+    if (company._count.users >= limit) {
+      throw new ForbiddenException(
+        `Alcanzaste el límite de ${limit} colaboradores de tu plan empresarial. Contacta a soporte para ampliarlo.`,
+      );
+    }
+  }
+
+  async updateLimits(companyId: string, dto: UpdateCompanyLimitDto) {
+    const company = await this.prisma.company.findUnique({ where: { id: companyId } });
+    if (!company) {
+      throw new NotFoundException('Company not found');
+    }
+    return this.prisma.company.update({
+      where: { id: companyId },
+      data: {
+        ...(dto.planId !== undefined ? { planId: dto.planId } : {}),
+        ...(dto.collaboratorLimitOverride !== undefined
+          ? { collaboratorLimitOverride: dto.collaboratorLimitOverride }
+          : {}),
+      },
+      include: { plan: true },
+    });
+  }
+
   async assignUser(companyId: string, dto: AssignUserDto) {
     const company = await this.prisma.company.findUnique({ where: { id: companyId } });
     if (!company) {
       throw new NotFoundException('Company not found');
     }
+    await this.assertCollaboratorRoom(companyId);
     const user = await this.prisma.user.findUnique({
       where: { id: dto.userId },
       include: { company: true },
@@ -69,6 +106,7 @@ export class CompaniesService {
     if (!me?.companyId) {
       throw new ForbiddenException('Not assigned to a company');
     }
+    await this.assertCollaboratorRoom(me.companyId);
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) {
       throw new ConflictException('Email already registered');
@@ -141,6 +179,7 @@ export class CompaniesService {
     const company = await this.prisma.company.findUnique({
       where: { id: companyId },
       include: {
+        plan: true,
         users: {
           include: {
             profile: {
@@ -188,6 +227,9 @@ export class CompaniesService {
       buttonColor: company.buttonColor,
       buttonTextColor: company.buttonTextColor,
       textColor: company.textColor,
+      plan: company.plan,
+      collaboratorLimitOverride: company.collaboratorLimitOverride,
+      effectiveCollaboratorLimit: effectiveCollaboratorLimit(company),
       collaborators: company.users.map((u) => ({
         id: u.id,
         profileId: u.profile?.id ?? null,

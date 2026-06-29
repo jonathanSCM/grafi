@@ -25,6 +25,7 @@ const companies_module_1 = require("./companies/companies.module");
 const cards_module_1 = require("./cards/cards.module");
 const leads_module_1 = require("./leads/leads.module");
 const catalog_module_1 = require("./catalog/catalog.module");
+const plans_module_1 = require("./plans/plans.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -46,6 +47,7 @@ exports.AppModule = AppModule = __decorate([
             cards_module_1.CardsModule,
             leads_module_1.LeadsModule,
             catalog_module_1.CatalogModule,
+            plans_module_1.PlansModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

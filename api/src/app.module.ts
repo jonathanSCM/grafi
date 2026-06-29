@@ -16,6 +16,7 @@ import { CompaniesModule } from './companies/companies.module';
 import { CardsModule } from './cards/cards.module';
 import { LeadsModule } from './leads/leads.module';
 import { CatalogModule } from './catalog/catalog.module';
+import { PlansModule } from './plans/plans.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { CatalogModule } from './catalog/catalog.module';
     CardsModule,
     LeadsModule,
     CatalogModule,
+    PlansModule,
   ],
   controllers: [AppController],
   providers: [AppService],

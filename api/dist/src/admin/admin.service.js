@@ -46,6 +46,7 @@ exports.AdminService = void 0;
 const common_1 = require("@nestjs/common");
 const bcrypt = __importStar(require("bcrypt"));
 const prisma_service_1 = require("../prisma/prisma.service");
+const limits_1 = require("../plans/limits");
 let AdminService = class AdminService {
     prisma;
     constructor(prisma) {
@@ -56,7 +57,24 @@ let AdminService = class AdminService {
             include: { profile: true, plan: true, company: true },
             orderBy: { createdAt: 'desc' },
         });
-        return users.map(({ password, ...rest }) => rest);
+        return users.map(({ password, ...rest }) => ({
+            ...rest,
+            effectiveButtonLimit: (0, limits_1.effectiveButtonLimit)(rest),
+        }));
+    }
+    async updateUserLimits(userId, dto) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                ...(dto.planId !== undefined ? { planId: dto.planId } : {}),
+                ...(dto.buttonLimitOverride !== undefined ? { buttonLimitOverride: dto.buttonLimitOverride } : {}),
+            },
+            include: { plan: true },
+        });
     }
     async createUser(dto) {
         const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });

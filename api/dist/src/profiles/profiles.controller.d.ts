@@ -32,6 +32,7 @@ export declare class ProfilesController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            planId: string | null;
             slug: string;
             theme: import("@prisma/client").$Enums.Theme;
             logo: string | null;
@@ -44,6 +45,7 @@ export declare class ProfilesController {
             description: string | null;
             website: string | null;
             redirectEnabled: boolean;
+            collaboratorLimitOverride: number | null;
         } | null;
         links: {
             url: string;
@@ -117,6 +119,7 @@ export declare class ProfilesController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            planId: string | null;
             slug: string;
             theme: import("@prisma/client").$Enums.Theme;
             logo: string | null;
@@ -129,6 +132,7 @@ export declare class ProfilesController {
             description: string | null;
             website: string | null;
             redirectEnabled: boolean;
+            collaboratorLimitOverride: number | null;
         } | null;
         links: {
             url: string;
